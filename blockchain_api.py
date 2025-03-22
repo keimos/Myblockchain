@@ -92,13 +92,14 @@ def register_nodes():
     }
     return jsonify(response), 201
 
-@app.route('/nodes/deRegister', methods=['POST'])
+@app.route('/nodes/deregister', methods=['POST'])
 def deregister_nodes():
+    """Deregisterd existing nodes."""
     values = request.get_json()
 
     nodes = values.get('nodes')
-    if nodes is None:
-        return "Error, please supply a valid list of nodes", 400
+    if not nodes:
+        return jsonify({'error': 'Error, please supply a valid list of nodes'}), 400
 
     for node in nodes:
         blockchain.deregister_node(node)
@@ -109,27 +110,17 @@ def deregister_nodes():
     }
     return jsonify(response), 201
 
-
 @app.route('/nodes/resolve', methods = ['GET'])
-def consensus():
+def resolve_conflict():
+    """Resolve blockchain conflicts."""
     replaced = blockchain.resolve_conflicts()
 
-    if replaced:
-        response = {
-            'message': 'Our chain got replaced',
-            'new_chain': blockchain.chain
-        }
-    else:
-        response = {
-            'message': 'Our chain is authoritative',
-            'chain': blockchain.chain
-        }
-
+    response = {
+        'message': 'Our chain got replaced' if replaced else 'Our chain is authoritative',
+        'chain': blockchain.chain
+    }
     return jsonify(response), 200
 
-
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0', port=5000)
-    # Usage: py blockchain.py --port 5000
-    # app = Flask(__name__)
+    # Run the Flask app
     flaskrun(app)

@@ -1,7 +1,6 @@
 from blockchain import Blockchain
 from uuid import uuid4
 from flask import Flask, jsonify, request
-
 from flaskrun import flaskrun
 
 # Instantiate our Node
@@ -44,6 +43,7 @@ def mine():
 
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
+    """Handle creating a new transaction."""
     values = request.get_json()
 
     # Check that the required fields are in the POSTed data
@@ -67,21 +67,21 @@ def full_chain():
     return jsonify(response), 200
 
 @app.route('/nodes', methods=['GET'])
-def all_nodes():
+def get_all_nodes():
+    """Retrieve all registed nodes."""
     response = {
         'message': 'All registered nodes',
         'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
 
-
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
     values = request.get_json()
 
     nodes = values.get('nodes')
-    if nodes is None:
-        return "Error, please supply a valid list of nodes", 400
+    if not nodes:
+        return jsonify({'error': 'Please supply a valid list of nodes'}), 400
 
     for node in nodes:
         blockchain.register_node(node)
@@ -91,7 +91,6 @@ def register_nodes():
         'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
-
 
 @app.route('/nodes/deRegister', methods=['POST'])
 def deregister_nodes():
